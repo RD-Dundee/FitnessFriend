@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../navigation/appHeader.dart';
 
-class addScreen extends StatelessWidget {
-  const addScreen({super.key});
+class loggedMeals extends StatelessWidget {
+  const loggedMeals({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +10,7 @@ class addScreen extends StatelessWidget {
       appBar: appHeader(),
       body: Center(
         child: Text(
-          "Add page",
+          "logged meals",
         )
       )
     );

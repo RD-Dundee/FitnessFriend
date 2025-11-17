@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens/home.dart';
 import '../screens/add.dart';
-import '../screens/settings.dart';
+import '../screens/loggedMeals.dart';
 
 class navBar extends StatefulWidget {
   const navBar({super.key});
@@ -15,8 +15,8 @@ class _navBarState extends State<navBar> {
 
   final List<Widget> pages = [
     homeScreen(),
-    addScreen(), //place holder
-    settings(), //place holder
+    addScreen(),
+    loggedMeals(),
   ];
 
   @override
@@ -46,7 +46,7 @@ class _navBarState extends State<navBar> {
 
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Settings'
+            label: 'Logged'
             ),
         ],
         
