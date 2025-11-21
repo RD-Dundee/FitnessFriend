@@ -1,23 +1,47 @@
 import 'package:flutter/material.dart';
 import '../navigation/appHeader.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import '../tables/database.dart';
 
-
-class homeScreen extends StatelessWidget {
+class homeScreen extends StatefulWidget {
   const homeScreen({super.key});
-  //temp details will be from table
-  final int calories = 850;
-  final int calorieGoal = 2200;
+  
+  @override
+  State<homeScreen> createState() => homeScreenState();
+}
 
-  final int carbs = 120;
-  final int carbGoal = 250;
+class homeScreenState extends State<homeScreen> {
+  int calories = 0;
+  int carbs = 0;
+  int protein = 0;
+  int fat = 0;
+  int calorieGoal = 1;
+  int carbGoal = 1;
+  int proteinGoal = 1;
+  int fatGoal = 1;
 
-  final int protein = 40;
-  final int proteinGoal = 150;
+  @override
+  void initState() {
+    super.initState();
+    loadProgress();
+  }
 
-  final int fat = 30;
-  final int fatGoal = 70;
+  Future<void> loadProgress() async {
+    final totals = await AppDatabase().getTodayTotals();
+    final goals = await AppDatabase().getGoals();
 
+    setState(() {
+      calories = totals["calories"] as int;
+      carbs = totals["carbs"] as int;
+      protein = totals["protein"] as int;
+      fat = totals["fat"] as int;
+
+      calorieGoal = goals["calorieGoal"] as int;
+      carbGoal = goals["carbGoal"] as int;
+      proteinGoal = goals["proteinGoal"] as int;
+      fatGoal = goals["fatGoal"] as int;
+    });
+  }
 
   @override
   Widget build(BuildContext context) { 
@@ -34,7 +58,7 @@ class homeScreen extends StatelessWidget {
             child: CircularPercentIndicator(
               radius: 110,
               lineWidth: 18,
-              percent: calories / calorieGoal,
+              percent: calorieGoal > 0 ? (calories / calorieGoal).clamp(0.0, 1.0) : 0.0,
               animation: true,
               circularStrokeCap: CircularStrokeCap.round,
               progressColor: Colors.orange,
@@ -69,13 +93,13 @@ class homeScreen extends StatelessWidget {
                   CircularPercentIndicator(
                     radius: 55,
                     lineWidth: 10,
-                    percent: carbs / carbGoal,
+                    percent: carbGoal > 0 ? (carbs / carbGoal).clamp(0.0, 1.0) : 0.0,
                     animation: true,
                     circularStrokeCap: CircularStrokeCap.butt,
                     progressColor: Colors.blue,
                     backgroundColor: Colors.grey,
                     center: Text(
-                      "${((carbs / carbGoal) * 100).round()}%",
+                      carbGoal > 0 ? "${((carbs / carbGoal) * 100).round()}%" : "0%",
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
@@ -90,13 +114,13 @@ class homeScreen extends StatelessWidget {
                   CircularPercentIndicator(
                     radius: 55,
                     lineWidth: 10,
-                    percent: protein / proteinGoal,
+                    percent: proteinGoal > 0 ? (protein / proteinGoal).clamp(0.0, 1.0) : 0.0,
                     animation: true,
                     circularStrokeCap: CircularStrokeCap.butt,
                     progressColor: Colors.red,
                     backgroundColor: Colors.grey,
                     center: Text(
-                      "${((protein / proteinGoal) * 100).round()}%",
+                      proteinGoal > 0 ? "${((protein / proteinGoal) * 100).round()}%" : "0%",
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
@@ -111,13 +135,13 @@ class homeScreen extends StatelessWidget {
                   CircularPercentIndicator(
                     radius: 55,
                     lineWidth: 10,
-                    percent: fat / fatGoal,
+                    percent: fatGoal > 0 ? (fat / fatGoal).clamp(0.0, 1.0) : 0.0,
                     animation: true,
                     circularStrokeCap: CircularStrokeCap.butt,
                     progressColor: Colors.purple,
                     backgroundColor: Colors.grey,
                     center: Text(
-                      "${((fat / fatGoal) * 100).round()}%",
+                      fatGoal > 0 ? "${((fat / fatGoal) * 100).round()}%" : "0%",
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
