@@ -133,4 +133,15 @@ class AppDatabase {
       };
     }
   }
+
+  Future<void> insertSavedMeal(Map<String, dynamic> data) async {
+    final db = await getDatabase();
+    await db.insert("savedMeals", data);
+  }
+
+  Future<void> insertLoggedMeal(Map<String, dynamic> data) async {
+    final db = await getDatabase();
+    await db.insert("loggedMeals", data);
+  }
+
 }
