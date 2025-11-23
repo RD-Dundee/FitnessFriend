@@ -144,4 +144,19 @@ class AppDatabase {
     await db.insert("loggedMeals", data);
   }
 
+  Future<List<Map<String, dynamic>>> getTodayLoggedMeals() async {
+    final db = await getDatabase();
+
+    final now = DateTime.now();
+    final dateString =
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+
+    return db.query(
+      "loggedMeals",
+      where: "date = ?",
+      whereArgs: [dateString],
+      orderBy: "timestamp ASC",
+    );
+  }
+
 }

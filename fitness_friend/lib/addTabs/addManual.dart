@@ -16,34 +16,39 @@ class _addManual extends State<addManual> {
   final fatCtrl = TextEditingController();
 
   Future<void> saveMeal() async {
-    final now = DateTime.now();
-    final date = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+  final now = DateTime.now();
+  final date = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
 
-    final db = await AppDatabase.getDatabase();
+  final db = await AppDatabase.getDatabase();
 
-    final data = {
-      "savedMealId": null,
-      "name": nameCtrl.text,
-      "calories": int.tryParse(caloriesCtrl.text) ?? 0,
-      "protein": int.tryParse(proteinCtrl.text) ?? 0,
-      "carbs": int.tryParse(carbsCtrl.text) ?? 0,
-      "fat": int.tryParse(fatCtrl.text) ?? 0,
-      "weight": null,
-      "timestamp": now.millisecondsSinceEpoch,
-      "date": date
-    };
+  final data = {
+    "savedMealId": null,
+    "name": nameCtrl.text,
+    "calories": int.tryParse(caloriesCtrl.text) ?? 0,
+    "protein": int.tryParse(proteinCtrl.text) ?? 0,
+    "carbs": int.tryParse(carbsCtrl.text) ?? 0,
+    "fat": int.tryParse(fatCtrl.text) ?? 0,
+    "weight": null,
+    "timestamp": now.millisecondsSinceEpoch,
+    "date": date
+  };
 
+  try {
     await db.insert("loggedMeals", data);
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text("Food added")));
-
-    nameCtrl.clear();
-    caloriesCtrl.clear();
-    proteinCtrl.clear();
-    carbsCtrl.clear();
-    fatCtrl.clear();
+    print("Innsert success");
+  } catch (e) {
+    print("Insert failed..... Damn : $e");
   }
+
+  ScaffoldMessenger.of(context)
+      .showSnackBar(const SnackBar(content: Text("Food added")));
+
+  nameCtrl.clear();
+  caloriesCtrl.clear();
+  proteinCtrl.clear();
+  carbsCtrl.clear();
+  fatCtrl.clear();
+}
 
   @override
   Widget build(BuildContext context) {
