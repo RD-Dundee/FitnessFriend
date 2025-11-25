@@ -47,6 +47,7 @@ class _settingsState extends State<settings> {
     
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text("Goals updated")));
+      
   } 
 
   Future<void> clearAllData() async {

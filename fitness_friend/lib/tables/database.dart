@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import '../security/encrypt.dart';
 
 class AppDatabase {
   static Database? _db;
@@ -136,36 +137,72 @@ class AppDatabase {
 
   Future<void> insertSavedMeal(Map<String, dynamic> data) async {
     final db = await getDatabase();
-    await db.insert("savedMeals", data);
+    
+    final encryptedData = Map<String, dynamic>.from(data);
+    if (data["name"] != null) {
+      encryptedData["name"] = securityHelper.encrypt(data["name"]);
+    }
+    
+    await db.insert("savedMeals", encryptedData);
   }
 
   Future<void> insertLoggedMeal(Map<String, dynamic> data) async {
     final db = await getDatabase();
-    await db.insert("loggedMeals", data);
+    
+    final encryptedData = Map<String, dynamic>.from(data);
+    if (data["name"] != null) {
+      encryptedData["name"] = securityHelper.encrypt(data["name"]);
+    }
+    
+    await db.insert("loggedMeals", encryptedData);
   }
+
 
   Future<List<Map<String, dynamic>>> getTodayLoggedMeals() async {
     final db = await getDatabase();
-
     final now = DateTime.now();
-    final dateString =
-        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    final dateString = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
 
-    return db.query(
+    final results = await db.query(
       "loggedMeals",
       where: "date = ?",
       whereArgs: [dateString],
       orderBy: "timestamp ASC",
     );
+
+    return results.map((meal) {
+      final name = meal["name"];
+      if (name != null && name is String) {
+        meal["name"] = securityHelper.decrypt(name);
+      }
+      return meal;
+    }).toList();
   }
+
 
   Future<void> logPortionMeal(Map<String, dynamic> data) async {
     final db = await getDatabase();
-    await db.insert("loggedMeals", data);
+    
+    final encryptedData = Map<String, dynamic>.from(data);
+    if (data["name"] != null) {
+      encryptedData["name"] = securityHelper.encrypt(data["name"]);
+    }
+    
+    await db.insert("loggedMeals", encryptedData);
   }
+
 
   Future<List<Map<String, dynamic>>> getSavedMeals() async {
     final db = await getDatabase();
-    return db.query("savedMeals", orderBy: "created_at DESC");
+    final results = await db.query("savedMeals", orderBy: "created_at DESC");
+    
+    return results.map((meal) {
+      if (meal["name"] != null) {
+        meal["name"] = securityHelper.decrypt(meal["name"] as String); 
+      }
+      return meal;
+    }).toList();
   }
+
+
 }
