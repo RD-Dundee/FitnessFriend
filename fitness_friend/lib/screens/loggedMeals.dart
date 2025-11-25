@@ -22,7 +22,7 @@ class _loggedMealsState extends State<loggedMeals> {
   void generateHours() {
     hours = List.generate(
       24,
-      (i) => i.toString().padLeft(2, '0') + ":00",
+      (i) => "${i.toString().padLeft(2, '0')}:00",
     );
   }
 
@@ -48,7 +48,7 @@ class _loggedMealsState extends State<loggedMeals> {
         (rawTs is int) ? rawTs : int.tryParse(rawTs.toString()) ?? 0
       );
       //this part
-      final hourKey = ts.hour.toString().padLeft(2, '0') + ":00";
+      final hourKey = "${ts.hour.toString().padLeft(2, '0')}:00";
 
       grouped.putIfAbsent(hourKey, () => []);
       grouped[hourKey]!.add(meal);

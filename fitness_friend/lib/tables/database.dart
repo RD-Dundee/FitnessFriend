@@ -159,4 +159,13 @@ class AppDatabase {
     );
   }
 
+  Future<void> logPortionMeal(Map<String, dynamic> data) async {
+    final db = await getDatabase();
+    await db.insert("loggedMeals", data);
+  }
+
+  Future<List<Map<String, dynamic>>> getSavedMeals() async {
+    final db = await getDatabase();
+    return db.query("savedMeals", orderBy: "created_at DESC");
+  }
 }
