@@ -1,23 +1,32 @@
+import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
 
 class securityHelper {
-  static final _key = Key.fromUtf8('INeedAKeyButDKWhatNeedMoreChar?');
-  static final _encrypter = Encrypter(AES(_key));
+  static final _key = Key.fromUtf8('FitnessFriendSecureKey_2024_AAAA');
+  static final _iv = IV.fromUtf8('1234567890123456');
+  static final _encrypter = Encrypter(AES(_key, mode: AESMode.cbc));
   
   static String encrypt(String data) {
     if (data.isEmpty) return data;
     try {
-      return _encrypter.encrypt(data).base64;
+      final encrypted = _encrypter.encrypt(data, iv: _iv);
+      return encrypted.base64;
     } catch (e) {
-      return data;
+      print('Encryption error: $e');
+      return 'enc_${base64.encode(utf8.encode(data))}';
     }
   }
   
   static String decrypt(String encryptedData) {
     if (encryptedData.isEmpty) return encryptedData;
     try {
-      return _encrypter.decrypt64(encryptedData);
+      final decrypted = _encrypter.decrypt64(encryptedData, iv: _iv);
+      return decrypted;
     } catch (e) {
+      if (encryptedData.startsWith('enc_')) {
+        final base64Data = encryptedData.substring(4);
+        return utf8.decode(base64.decode(base64Data));
+      }
       return encryptedData;
     }
   }
