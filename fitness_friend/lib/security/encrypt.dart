@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
 
 class securityHelper {
-  static final _key = Key.fromUtf8('FitnessFriendSecureKey_2024_AAAA');
+  static final _key = Key.fromUtf8('FFSecureKey_2024_123456_ABCDEFGH');
   static final _iv = IV.fromUtf8('1234567890123456');
   static final _encrypter = Encrypter(AES(_key, mode: AESMode.cbc));
   
