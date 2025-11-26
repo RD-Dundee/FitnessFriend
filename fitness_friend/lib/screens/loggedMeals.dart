@@ -62,7 +62,7 @@ class _loggedMealsState extends State<loggedMeals> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(  // ← JUST ADDED THIS HEADER
+      appBar: AppBar(
         title: const Text("Logged Meals"),
         actions: [
           IconButton(
