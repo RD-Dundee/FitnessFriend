@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fitness_friend/tables/database.dart';
 
 void main() {
-  // Initialize Flutter binding for database tests
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Database Operation Tests', () {
