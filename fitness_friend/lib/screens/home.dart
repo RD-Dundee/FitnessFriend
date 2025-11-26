@@ -74,15 +74,14 @@ class homeScreenState extends State<homeScreen> {
     }
   }
 
-  Future<void> logPortion(Map<String, dynamic> meal) async {
+  Future<void> logPortion(Map<String, dynamic> meal, TextEditingController weightCtrl) async {
     final enteredWeight = int.tryParse(weightCtrl.text) ?? 0;
     if (enteredWeight == 0) return;
 
     final scale = enteredWeight / (meal["totalWeight"] ?? 1);
 
     final now = DateTime.now();
-    final date =
-        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    final date = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
 
     final db = await AppDatabase.getDatabase();
     await db.insert("loggedMeals", {
@@ -99,66 +98,95 @@ class homeScreenState extends State<homeScreen> {
 
     weightCtrl.clear();
     await loadProgress();
+    
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text("Meal logged successfully!")));
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     return Scaffold(
       appBar: appHeader(),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 40),
 
-            Center(
-              child: CircularPercentIndicator(
-                radius: 110,
-                lineWidth: 18,
-                percent: calorieGoal == 0
-                    ? 0
-                    : (calories / calorieGoal).clamp(0.0, 1.0),
-                animation: true,
-                circularStrokeCap: CircularStrokeCap.round,
-                progressColor: Colors.orange,
-                backgroundColor: Colors.grey.shade300,
-                center: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            Card(
+              margin: EdgeInsets.all(16),
+              elevation: 2,
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
                   children: [
-                    Text(
-                      "$calories",
-                      style: const TextStyle(
-                          fontSize: 34, fontWeight: FontWeight.bold),
+                    CircularPercentIndicator(
+                      radius: 110,
+                      lineWidth: 18,
+                      percent: calorieGoal == 0 ? 0 : (calories / calorieGoal).clamp(0.0, 1.0),
+                      animation: true,
+                      circularStrokeCap: CircularStrokeCap.round,
+                      progressColor: Colors.orange,
+                      backgroundColor: Colors.grey.shade300,
+                      center: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "$calories",
+                            style: const TextStyle(
+                              fontSize: 34,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            "/ $calorieGoal kcal",
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
                     ),
-                    Text(
-                      "/ $calorieGoal kcal",
-                      style: const TextStyle(fontSize: 16),
+
+                    const SizedBox(height: 30),
+
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          macroWheel(carbs, carbGoal, "Carbs", Colors.blue),
+                          macroWheel(protein, proteinGoal, "Protein", Colors.red),
+                          macroWheel(fat, fatGoal, "Fat", Colors.purple),
+                        ],
+                      ),
                     ),
                   ],
+                ),
+              
+              ),
+            ),
+
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 20),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.grey.shade400,
+                    width: 3,
+                  ),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  "Saved Meals",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 30),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                macroWheel(carbs, carbGoal, "Carbs"),
-                macroWheel(protein, proteinGoal, "Protein"),
-                macroWheel(fat, fatGoal, "Fat"),
-              ],
-            ),
-
-            const SizedBox(height: 25),
-            Container(height: 3, width: double.infinity, color: Colors.grey.shade400),
             const SizedBox(height: 20),
-
-            const Text(
-              "Saved Meals",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 15),
 
             for (final meal in savedMeals) buildSavedMealCard(meal),
 
@@ -169,18 +197,19 @@ class homeScreenState extends State<homeScreen> {
     );
   }
 
-  Widget macroWheel(int value, int goal, String label) {
+  Widget macroWheel(int value, int goal, String label, Color color) {
     return Column(
       children: [
         CircularPercentIndicator(
-          radius: 55,
+          radius: 45,
           lineWidth: 10,
           percent: goal == 0 ? 0 : (value / goal).clamp(0.0, 1.0),
           animation: true,
-          progressColor: Colors.blue,
+          circularStrokeCap: CircularStrokeCap.butt,
+          progressColor: color,
           backgroundColor: Colors.grey,
           center: Text(
-            "${goal == 0 ? 0 : ((value / goal) * 100).round()}%",
+            goal == 0 ? "0%" : "${((value / goal) * 100).round()}%",
             style: const TextStyle(fontSize: 16),
           ),
         ),
@@ -192,35 +221,40 @@ class homeScreenState extends State<homeScreen> {
   }
 
   Widget buildSavedMealCard(Map<String, dynamic> meal) {
+    final localWeightCtrl = TextEditingController();
+    
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12), color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(12), 
+        color: Colors.grey.shade100,
+        border: Border.all(
+          color: Colors.grey.shade400,
+          width: 1,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(meal["name"],
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
           const SizedBox(height: 5),
-          Text("${meal["totalWeight"]} g • ${meal["calories"]} kcal"),
-
+          Text("${meal["totalWeight"]}g • ${meal["calories"]} kcal • ${meal["protein"]}P • ${meal["carbs"]}C • ${meal["fat"]}F"),
           const SizedBox(height: 10),
 
           Row(
             children: [
               Expanded(
                 child: TextField(
-                  controller: weightCtrl,
-                  decoration:
-                      const InputDecoration(labelText: "Weight used (g)"),
+                  controller: localWeightCtrl,
+                  decoration: const InputDecoration(labelText: "Weight used (g)"),
                   keyboardType: TextInputType.number,
                 ),
               ),
               const SizedBox(width: 10),
               ElevatedButton(
-                onPressed: () => logPortion(meal),
+                onPressed: () => logPortion(meal, localWeightCtrl),
                 child: const Text("Add"),
               ),
             ],
@@ -229,4 +263,5 @@ class homeScreenState extends State<homeScreen> {
       ),
     );
   }
+
 }

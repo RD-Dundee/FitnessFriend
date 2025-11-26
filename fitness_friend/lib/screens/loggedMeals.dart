@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../tables/database.dart';
+import '../screens/settings.dart';
 
 class loggedMeals extends StatefulWidget {
   const loggedMeals({super.key});
@@ -42,12 +43,11 @@ class _loggedMealsState extends State<loggedMeals> {
 
     Map<String, List<Map<String, dynamic>>> grouped = {};
     for (var meal in data) {
-      //fix
       final rawTs = meal["timestamp"];
       final ts = DateTime.fromMillisecondsSinceEpoch(
         (rawTs is int) ? rawTs : int.tryParse(rawTs.toString()) ?? 0
       );
-      //this part
+
       final hourKey = "${ts.hour.toString().padLeft(2, '0')}:00";
 
       grouped.putIfAbsent(hourKey, () => []);
@@ -62,7 +62,20 @@ class _loggedMealsState extends State<loggedMeals> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Logged Meals")),
+      appBar: AppBar(  // ← JUST ADDED THIS HEADER
+        title: const Text("Logged Meals"),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const settings())
+              );
+            },
+            icon: Icon(Icons.settings),
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: hours.length,
         itemBuilder: (context, index) {
